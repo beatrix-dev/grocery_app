@@ -77,6 +77,8 @@ The frontend calls `/api/config` on Vercel, which returns that backend URL at ru
 
 This repo includes a [.vercelignore](/Users/romanomoses/Documents/romano_github_repos/grocery_app/.vercelignore) file so Vercel ignores the AWS CDK and Python backend source during the frontend deploy. That prevents Vercel from mis-detecting the project as a Python app.
 
+If Vercel previously detected the repo as Python, open the Vercel project settings and set Framework Preset to `Other`. The repo now includes a [package.json](/Users/romanomoses/Documents/romano_github_repos/grocery_app/package.json) and [vercel.json](/Users/romanomoses/Documents/romano_github_repos/grocery_app/vercel.json) so the deployment is treated as a static app with a Node serverless function at `/api/config`.
+
 ## Local development
 
 You can open the static frontend locally with a simple server:
