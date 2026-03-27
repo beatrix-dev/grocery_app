@@ -75,6 +75,8 @@ GROCERY_API_BASE_URL=https://your-api-id.execute-api.region.amazonaws.com
 
 The frontend calls `/api/config` on Vercel, which returns that backend URL at runtime.
 
+This repo includes a [.vercelignore](/Users/romanomoses/Documents/romano_github_repos/grocery_app/.vercelignore) file so Vercel ignores the AWS CDK and Python backend source during the frontend deploy. That prevents Vercel from mis-detecting the project as a Python app.
+
 ## Local development
 
 You can open the static frontend locally with a simple server:

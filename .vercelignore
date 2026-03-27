@@ -1,0 +1,10 @@
+.git
+.gitignore
+.venv
+cdk.json
+cdk_app.py
+grocery_app/
+tests/
+requirements.txt
+requirements-dev.txt
+source.bat
