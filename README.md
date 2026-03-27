@@ -33,7 +33,7 @@ For a personal project or light usage, this should stay very inexpensive compare
 - [app.js](/Users/romanomoses/Documents/romano_github_repos/grocery_app/app.js): frontend data fetching and UI rendering
 - [styles.css](/Users/romanomoses/Documents/romano_github_repos/grocery_app/styles.css): app styling
 - [api/config.js](/Users/romanomoses/Documents/romano_github_repos/grocery_app/api/config.js): Vercel function that exposes the AWS API URL to the browser
-- [app.py](/Users/romanomoses/Documents/romano_github_repos/grocery_app/app.py): CDK app entrypoint
+- [cdk_app.py](/Users/romanomoses/Documents/romano_github_repos/grocery_app/cdk_app.py): CDK app entrypoint
 - [grocery_app/grocery_app_stack.py](/Users/romanomoses/Documents/romano_github_repos/grocery_app/grocery_app/grocery_app_stack.py): AWS infrastructure
 - [grocery_app/lambda/api/handler.py](/Users/romanomoses/Documents/romano_github_repos/grocery_app/grocery_app/lambda/api/handler.py): backend CRUD, summary, specials logic, receipt text import, signed uploads
 - [grocery_app/lambda/ocr_scan/handler.py](/Users/romanomoses/Documents/romano_github_repos/grocery_app/grocery_app/lambda/ocr_scan/handler.py): optional receipt OCR flow
