@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Basket Brief</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Vercel frontend + AWS serverless backend</p>
+          <h1>Basket Brief</h1>
+          <p class="hero-copy">
+            Track grocery prices, spot fake specials, and import receipts without
+            running an always-on server.
+          </p>
+        </div>
+        <div class="hero-card">
+          <p class="hero-card-label">Backend status</p>
+          <strong id="api-status">Connecting...</strong>
+          <p id="api-url" class="muted">Loading API configuration.</p>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="dashboard card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Dashboard</p>
+              <h2>Price intelligence at a glance</h2>
+            </div>
+            <button id="refresh-button" class="ghost-button" type="button">
+              Refresh
+            </button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric">
+              <span>This month</span>
+              <strong id="monthly-spend">R0.00</strong>
+              <small id="monthly-delta">vs last month</small>
+            </article>
+            <article class="metric">
+              <span>Unique items</span>
+              <strong id="unique-items">0</strong>
+              <small>Tracked in your backend history</small>
+            </article>
+            <article class="metric">
+              <span>Fake specials</span>
+              <strong id="fake-specials">0</strong>
+              <small>Flagged from your own past prices</small>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="subcard">
+              <div class="subcard-heading">
+                <h3>Spend by store</h3>
+                <span>This month</span>
+              </div>
+              <div id="store-breakdown" class="bars empty-state">
+                No spend data yet.
+              </div>
+            </div>
+
+            <div class="subcard">
+              <div class="subcard-heading">
+                <h3>Recent entries</h3>
+                <span>Latest 5</span>
+              </div>
+              <div id="recent-entries" class="recent-list empty-state">
+                No price entries yet.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="forms-grid">
+          <section class="card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Add item</p>
+                <h2>Log a grocery price</h2>
+              </div>
+            </div>
+
+            <form id="entry-form" class="stack">
+              <div class="field-grid">
+                <label>
+                  <span>Item name</span>
+                  <input name="itemName" placeholder="Clover Full Cream Milk 2L" required />
+                </label>
+                <label>
+                  <span>Store</span>
+                  <input name="store" placeholder="Checkers Sixty60" required />
+                </label>
+                <label>
+                  <span>Price</span>
+                  <input name="price" type="number" step="0.01" min="0" placeholder="34.99" required />
+                </label>
+                <label>
+                  <span>Date</span>
+                  <input name="purchasedOn" type="date" required />
+                </label>
+              </div>
+
+              <label class="checkbox-row">
+                <input id="is-special" name="isSpecial" type="checkbox" />
+                <span>Item was marked as on special</span>
+              </label>
+
+              <div id="claimed-price-wrap" class="hidden">
+                <label>
+                  <span>Claimed original price</span>
+                  <input
+                    name="claimedOriginalPrice"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="39.99"
+                  />
+                </label>
+              </div>
+
+              <label>
+                <span>Notes</span>
+                <textarea
+                  name="notes"
+                  rows="3"
+                  placeholder="Optional note about brand, size, or special tag."
+                ></textarea>
+              </label>
+
+              <button class="primary-button" type="submit">Save item</button>
+            </form>
+          </section>
+
+          <section class="card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Receipt import</p>
+                <h2>Paste Sixty60 or online order text</h2>
+              </div>
+            </div>
+
+            <form id="receipt-form" class="stack">
+              <div class="field-grid">
+                <label>
+                  <span>Store</span>
+                  <input name="store" placeholder="Checkers Sixty60" required />
+                </label>
+                <label>
+                  <span>Date</span>
+                  <input name="purchasedOn" type="date" required />
+                </label>
+              </div>
+              <label>
+                <span>Receipt text</span>
+                <textarea
+                  name="receiptText"
+                  rows="8"
+                  placeholder="Bananas   R24.99&#10;Brown Bread   R18.49"
+                  required
+                ></textarea>
+              </label>
+              <button class="primary-button" type="submit">Bulk import</button>
+            </form>
+
+            <div class="photo-scan">
+              <div>
+                <p class="eyebrow">Photo scan</p>
+                <h3>Scaffolded for AI receipt scanning</h3>
+                <p class="muted">
+                  The AWS backend can generate a signed S3 upload URL and trigger
+                  Textract only when you choose to use photo scanning.
+                </p>
+              </div>
+              <button id="photo-scan-button" class="ghost-button" type="button">
+                Generate upload URL
+              </button>
+            </div>
+          </section>
+        </section>
+
+        <section class="card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Specials detector</p>
+              <h2>Specials ranked by your own history</h2>
+            </div>
+          </div>
+          <div id="specials-list" class="specials-list empty-state">
+            Special-marked items will appear here once you log them.
+          </div>
+        </section>
+
+        <div id="flash" class="flash hidden" role="status" aria-live="polite"></div>
+      </main>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
