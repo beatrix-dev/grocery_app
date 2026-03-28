@@ -275,6 +275,7 @@ form label {
 }
 
 input,
+select,
 textarea {
   width: 100%;
   border: 1px solid rgba(74, 55, 40, 0.16);

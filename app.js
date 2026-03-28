@@ -15,6 +15,12 @@ const elements = {
   refreshButton: document.querySelector("#refresh-button"),
   entryForm: document.querySelector("#entry-form"),
   receiptForm: document.querySelector("#receipt-form"),
+  entryStore: document.querySelector("#entry-store"),
+  entryStoreCustomWrap: document.querySelector("#entry-store-custom-wrap"),
+  entryStoreCustom: document.querySelector("#entry-store-custom"),
+  receiptStore: document.querySelector("#receipt-store"),
+  receiptStoreCustomWrap: document.querySelector("#receipt-store-custom-wrap"),
+  receiptStoreCustom: document.querySelector("#receipt-store-custom"),
   claimedWrap: document.querySelector("#claimed-price-wrap"),
   isSpecial: document.querySelector("#is-special"),
   monthlySpend: document.querySelector("#monthly-spend"),
@@ -52,6 +58,18 @@ function wireEvents() {
     elements.claimedWrap.classList.toggle("hidden", !elements.isSpecial.checked);
   });
 
+  elements.entryStore.addEventListener("change", () => {
+    toggleCustomStore(elements.entryStore, elements.entryStoreCustomWrap, elements.entryStoreCustom);
+  });
+
+  elements.receiptStore.addEventListener("change", () => {
+    toggleCustomStore(
+      elements.receiptStore,
+      elements.receiptStoreCustomWrap,
+      elements.receiptStoreCustom,
+    );
+  });
+
   elements.entryForm.addEventListener("submit", handleEntrySubmit);
   elements.receiptForm.addEventListener("submit", handleReceiptSubmit);
   elements.refreshButton.addEventListener("click", refreshDashboard);
@@ -75,50 +93,72 @@ async function refreshDashboard() {
 
 async function handleEntrySubmit(event) {
   event.preventDefault();
-  const formData = new FormData(elements.entryForm);
-  const payload = {
-    itemName: formData.get("itemName"),
-    store: formData.get("store"),
-    price: Number(formData.get("price")),
-    purchasedOn: formData.get("purchasedOn"),
-    notes: formData.get("notes"),
-    isSpecial: elements.isSpecial.checked,
-  };
+  try {
+    const formData = new FormData(elements.entryForm);
+    const payload = {
+      itemName: formData.get("itemName"),
+      store: getSelectedStore(
+        elements.entryStore,
+        elements.entryStoreCustom,
+        "Please choose a shop.",
+      ),
+      price: Number(formData.get("price")),
+      purchasedOn: formData.get("purchasedOn"),
+      notes: formData.get("notes"),
+      isSpecial: elements.isSpecial.checked,
+    };
 
-  if (elements.isSpecial.checked && formData.get("claimedOriginalPrice")) {
-    payload.claimedOriginalPrice = Number(formData.get("claimedOriginalPrice"));
+    if (elements.isSpecial.checked && formData.get("claimedOriginalPrice")) {
+      payload.claimedOriginalPrice = Number(formData.get("claimedOriginalPrice"));
+    }
+
+    const result = await apiFetch("/entries", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    elements.entryForm.reset();
+    setTodayDefaults();
+    elements.claimedWrap.classList.add("hidden");
+    toggleCustomStore(elements.entryStore, elements.entryStoreCustomWrap, elements.entryStoreCustom);
+    showFlash(`Saved ${result.entry.itemName}.`);
+    await refreshDashboard();
+  } catch (error) {
+    showFlash(error.message || "Unable to save the item.");
   }
-
-  const result = await apiFetch("/entries", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-
-  elements.entryForm.reset();
-  setTodayDefaults();
-  elements.claimedWrap.classList.add("hidden");
-  showFlash(`Saved ${result.entry.itemName}.`);
-  await refreshDashboard();
 }
 
 async function handleReceiptSubmit(event) {
   event.preventDefault();
-  const formData = new FormData(elements.receiptForm);
-  const payload = {
-    store: formData.get("store"),
-    purchasedOn: formData.get("purchasedOn"),
-    receiptText: formData.get("receiptText"),
-  };
+  try {
+    const formData = new FormData(elements.receiptForm);
+    const payload = {
+      store: getSelectedStore(
+        elements.receiptStore,
+        elements.receiptStoreCustom,
+        "Please choose a shop for the receipt import.",
+      ),
+      purchasedOn: formData.get("purchasedOn"),
+      receiptText: formData.get("receiptText"),
+    };
 
-  const result = await apiFetch("/receipts/text", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+    const result = await apiFetch("/receipts/text", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
 
-  elements.receiptForm.reset();
-  setTodayDefaults();
-  showFlash(`Imported ${result.count} receipt lines.`);
-  await refreshDashboard();
+    elements.receiptForm.reset();
+    setTodayDefaults();
+    toggleCustomStore(
+      elements.receiptStore,
+      elements.receiptStoreCustomWrap,
+      elements.receiptStoreCustom,
+    );
+    showFlash(`Imported ${result.count} receipt lines.`);
+    await refreshDashboard();
+  } catch (error) {
+    showFlash(error.message || "Unable to import the receipt.");
+  }
 }
 
 async function handleUploadUrl() {
@@ -273,6 +313,32 @@ function setTodayDefaults() {
       input.value = today;
     }
   });
+}
+
+function toggleCustomStore(selectElement, wrapElement, inputElement) {
+  const showCustom = selectElement.value === "Other";
+  wrapElement.classList.toggle("hidden", !showCustom);
+  inputElement.required = showCustom;
+  if (!showCustom) {
+    inputElement.value = "";
+  }
+}
+
+function getSelectedStore(selectElement, inputElement, emptyMessage) {
+  if (!selectElement.value) {
+    throw new Error(emptyMessage);
+  }
+
+  if (selectElement.value !== "Other") {
+    return selectElement.value;
+  }
+
+  const customValue = inputElement.value.trim();
+  if (!customValue) {
+    throw new Error("Please enter the custom shop name.");
+  }
+
+  return customValue;
 }
 
 function formatMoney(value) {
